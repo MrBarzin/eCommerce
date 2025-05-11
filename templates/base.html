@@ -100,20 +100,20 @@
                             </a>
                             <!-- End Shopping Cart -->
 
-                            <button class="btn btn-ghost-secondary btn-icon" id="dropdownMenuLink"
+                            <button id="profile-button" class="btn btn-ghost-secondary btn-icon" id="dropdownMenuLink"
                                 data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <span class="avatar avatar-sm avatar-circle">
-                                    <img class="avatar-img" src="{{request.user.user_profile.image.url}}"
+                                    <img id="user_profile_picture" class="avatar-img" 
                                         alt="Image Description">
                                 </span>
                             </button>
 
                             <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                                <a class="dropdown-item" href="#">پروفایل</a>
-                                <a class="dropdown-item" href="#">خروج</a>
+                                <a class="dropdown-item" href="http://127.0.0.1:8000/account/profile-view/">پروفایل</a>
+                                <a id="logout-button" class="dropdown-item" href="#">خروج</a>
                             </div>
 
-                            <a class="btn btn-primary btn-transition" href="#">ورود</a>
+                            <a id="authenticate-button" class="btn btn-primary btn-transition" href="http://127.0.0.1:8000/account/login-view/">ورود</a>
                         </li>
                     </ul>
                 </div>
@@ -634,6 +634,68 @@
             });
         }
         
+    </script>
+
+    <script>
+        (async () => {
+            try {
+              const token = localStorage.getItem("authToken");
+              const response = await fetch("http://127.0.0.1:8000/account/get-profile-api/", {
+                method: "GET",
+                headers: { 
+                    "Content-Type": "application/json", 
+                    "Authorization": token,
+                }
+              });
+          
+              console.log("HTTP status:", response.status);    // now this works
+          
+              if (response.ok) {
+                  const data = await response.json();
+                  UPPItem = document.getElementById("user_profile_picture");
+                  UPPItem.src = "http://127.0.0.1:8000/" + data.profile_picture;
+                  console.log(UPPItem);
+                  AB = document.getElementById("authenticate-button");
+                  AB.hidden = true;
+            } else {
+
+                    throw new Error(`Server responded with ${response.status}`);
+                }
+          
+            } catch (err) {
+              console.error("Fetch error:", err);
+              PB = document.getElementById("profile-button");
+              PB.hidden = true;
+            }
+          })();
+
+          document.getElementById("logout-button").addEventListener("click", async function(event) {
+            event.preventDefault();
+
+            try {
+                const token = localStorage.getItem("authToken");
+                const response = await fetch("http://127.0.0.1:8000/account/logout-api/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": token
+                    },
+                });
+        
+                
+                if (response.ok) {
+                    // Redirect on successful login
+                    window.location.href = "http://127.0.0.1:8000/";
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Toastify({
+                    text: "خطای ارتباط با سرور",
+                    className: "error",
+                    style: { background: "red" }
+                }).showToast();
+            }
+        });
     </script>
 
     {% block extra_js %} {% endblock extra_js %}

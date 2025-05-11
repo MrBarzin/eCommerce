@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}پروفایل کاربر{% endblock title %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock extra_css %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-header text-center">
+          <span class="avatar avatar-lg avatar-circle mb-3">
+            <img src="{{ user.profile.profile_picture.url }}" alt="{{ user.username }}" class="avatar-img">
+          </span>
+          <h3 class="card-title">{{ user.get_full_name|default:user.username }}</h3>
+        </div>
+        <div class="card-body">
+          <form method="post" id="update-profile-form" enctype="multipart/form-data" class="js-validate">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="id_first_name" class="form-label">نام</label>
+              <input type="text" name="first_name" id="id_first_name"
+                     class="form-control" value="{{ user.first_name }}">
+            </div>
+            <div class="mb-3">
+              <label for="id_last_name" class="form-label">نام خانوادگی</label>
+              <input type="text" name="last_name" id="id_last_name"
+                     class="form-control" value="{{ user.last_name }}">
+            </div>
+            <div class="mb-3">
+              <label for="id_phone" class="form-label">شماره همراه</label>
+              <input type="phone" name="phone" id="id_phone"
+                     class="form-control" value="{{ user.phone }}">
+            </div>
+            <div class="mb-3">
+              <label for="id_profile_picture" class="form-label">تصویر پروفایل</label>
+              <input type="file" name="profile_picture" id="id_profile_picture" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary w-100">ذخیره تغییرات</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+    document.getElementById("update-profile-form").addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        try {
+            const token = localStorage.getItem("authToken");
+            const formData = {
+                first_name: document.getElementById("id_first_name").value,
+                last_name: document.getElementById("id_last_name").value,
+                phone: document.getElementById("id_phone").value,
+            };
+            {% comment %} // Check if the profile picture is selected, and append it to formData
+            const profilePictureInput = document.getElementById("id_profile_picture");
+            if (profilePictureInput.files.length > 0) {
+                formData.append("profile_picture", profilePictureInput.files[0]);
+            } {% endcomment %}
+
+            const response = await fetch("http://127.0.0.1:8000/account/update-profile-api/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": token
+                },
+                body: JSON.stringify(formData)
+            });
+    
+            
+            if (response.ok) {
+                // Redirect on successful login
+                window.location.href = "http://127.0.0.1:8000/account/profile-view/";
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Toastify({
+                text: "خطای ارتباط با سرور",
+                className: "error",
+                style: { background: "red" }
+            }).showToast();
+        }
+    });
+</script>
+{% endblock extra_js %}

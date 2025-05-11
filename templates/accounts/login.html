@@ -1,75 +1,122 @@
 {% extends 'base.html' %}
 
-
 {% block content %}
+<!-- Form -->
+<div class="container content-space-3 content-space-t-lg-4 content-space-b-lg-3">
+  <div class="flex-grow-1 mx-auto" style="max-width: 28rem;">
+    <!-- Heading -->
+    <div class="text-center mb-5 mb-md-7">
+      <h1 class="h2">فرم ورود</h1>
+      <p>برای مدیریت حساب خود وارد شوید.</p>
+    </div>
+    <!-- End Heading -->
 
     <!-- Form -->
-    <div class="container content-space-3 content-space-t-lg-4 content-space-b-lg-3">
-      <div class="flex-grow-1 mx-auto" style="max-width: 28rem;">
-        <!-- Heading -->
-        <div class="text-center mb-5 mb-md-7">
-          <h1 class="h2">فرم ورود</h1>
-          <p>برای مدیریت حساب خود وارد شوید.</p>
-        </div>
-        <!-- End Heading -->
-
-        <!-- Form -->
-        <form class="js-validate needs-validation" novalidate>
-          <!-- Form -->
-          <div class="mb-4">
-            <label class="form-label" for="signupSimpleLoginEmail">ایمیل شما</label>
-            <input type="email" class="form-control form-control-lg text-center" name="email"
-              id="signupSimpleLoginEmail" placeholder="email@site.com" aria-label="email@site.com" required>
-            <span class="invalid-feedback">لطفا یک آدرس ایمیل معتبر وارد کنید.</span>
-          </div>
-          <!-- End Form -->
-
-          <!-- Form -->
-          <div class="mb-4">
-            <div class="d-flex justify-content-between align-items-center">
-              <label class="form-label" for="signupSimpleLoginPassword">کلمه عبور</label>
-
-            </div>
-
-            <div class="input-group input-group-merge" data-hs-validation-validate-class>
-              <input type="password" class="js-toggle-password form-control form-control-lg text-center" name="password"
-                id="signupSimpleLoginPassword" placeholder="8+ characters required" aria-label="8+ characters required"
-                required minlength="8" data-hs-toggle-password-options='{
-                "target": "#changePassTarget",
-                "defaultClass": "bi-eye-slash",
-                "showClass": "bi-eye",
-                "classChangeTarget": "#changePassIcon"
-              }'>
-              <a id="changePassTarget" class="input-group-append input-group-text" href="javascript:;">
-                <i id="changePassIcon" class="bi-eye"></i>
-              </a>
-            </div>
-
-            <span class="invalid-feedback">لطفا یک گذر واژه معتبر وارد کنید.</span>
-          </div>
-          <!-- End Form -->
-
-          <div class="d-grid mb-3">
-            <a class="form-label-link" href="./page-reset-password-simple.html">رمز عبور را فراموش کرده اید؟</a>
-            <button type="submit" class="btn btn-primary btn-lg">ورود</button>
-          </div>
-
-          <div class="text-center">
-            <p>حساب کاربری ندارید؟ <a class="link" href="./page-signup-simple.html">اینجا ثبت نام کنید</a></p>
-          </div>
-        </form>
-        <!-- End Form -->
+    <form id="login-form" class="js-validate needs-validation" novalidate>
+      {% csrf_token %}
+      
+      <!-- Username Input -->
+      <div class="mb-4">
+        <label class="form-label" for="loginUsername">نام کاربری</label>
+        <input type="text" class="form-control form-control-lg text-center" 
+               name="username" id="loginUsername" 
+               placeholder="نام کاربری" required>
+        <span class="invalid-feedback">لطفا نام کاربری خود را وارد کنید.</span>
       </div>
-    </div>
+
+      <!-- Password Input -->
+      <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+          <label class="form-label" for="loginPassword">کلمه عبور</label>
+        </div>
+        <div class="input-group input-group-merge" data-hs-validation-validate-class>
+          <input type="password" class="js-toggle-password form-control form-control-lg text-center" 
+                 name="password" id="loginPassword" 
+                 placeholder="رمز عبور" required minlength="8"
+                 data-hs-toggle-password-options='{
+                   "target": "#changePassTarget",
+                   "defaultClass": "bi-eye-slash",
+                   "showClass": "bi-eye",
+                   "classChangeTarget": "#changePassIcon"
+                 }'>
+          <a id="changePassTarget" class="input-group-append input-group-text" href="javascript:;">
+            <i id="changePassIcon" class="bi-eye"></i>
+          </a>
+        </div>
+        <span class="invalid-feedback">لطفا یک گذر واژه معتبر وارد کنید.</span>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="d-grid mb-3">
+        <button type="submit" class="btn btn-primary btn-lg">ورود</button>
+      </div>
+
+      <!-- Links -->
+      <div class="text-center">
+        <p>حساب کاربری ندارید؟ <a class="link" href="http://127.0.0.1:8000/account/email-verification-view/">اینجا ثبت نام کنید</a></p>
+      </div>
+    </form>
     <!-- End Form -->
-
+  </div>
+</div>
+<!-- End Form -->
 {% endblock content %}
-
 
 {% block extra_js %}
 <script>
-    // INITIALIZATION OF TOGGLE PASSWORD
-    // =======================================================
-    new HSTogglePassword('.js-toggle-password')
+// Initialize toggle password
+new HSTogglePassword('.js-toggle-password')
+
+// Login form handling
+document.getElementById("login-form").addEventListener("submit", async function(event) {
+    event.preventDefault();
+    
+    // Form validation
+    if (!this.checkValidity()) {
+        event.stopPropagation();
+        this.classList.add('was-validated');
+        return;
+    }
+
+    const formData = {
+        username: document.getElementById("loginUsername").value,
+        password: document.getElementById("loginPassword").value
+    };
+
+    try {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const response = await fetch("http://127.0.0.1:8000/account/login-api/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken
+            },
+            body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+            // Redirect on successful login
+            authToken = data.key;
+            localStorage.setItem("authToken", "Token " + authToken);
+            window.location.href = "http://127.0.0.1:8000/";
+        } else {
+            // Show error message
+            Toastify({
+                text: data.error || "ورود ناموفق! اطلاعات وارد شده صحیح نمی‌باشد.",
+                className: "error",
+                style: { background: "red" }
+            }).showToast();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Toastify({
+            text: "خطای ارتباط با سرور",
+            className: "error",
+            style: { background: "red" }
+        }).showToast();
+    }
+});
 </script>
 {% endblock extra_js %}

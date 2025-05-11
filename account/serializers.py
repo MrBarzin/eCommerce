@@ -38,3 +38,10 @@ class LoginSerializer(serializers.Serializer):
     # class Meta:
     #     model = get_user_model()
     #     fields = ("username", "password")
+    
+    
+class UpdateProfileView(serializers.Serializer):
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+    phone = serializers.CharField()
+    profile_picture = serializers.ImageField(required=False, allow_null=True)

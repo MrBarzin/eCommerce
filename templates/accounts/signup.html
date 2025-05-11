@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block content %}
 
     <!-- Form -->
     <div class="container content-space-3 content-space-t-lg-4 content-space-b-lg-3">
@@ -11,8 +12,15 @@
         <!-- End Heading -->
 
         <!-- Form -->
-        <form class="js-validate needs-validation" novalidate>
+        <form id="sign-up-form" class="js-validate needs-validation" novalidate>
+          {% csrf_token %} 
           <!-- Form -->
+          <div class="mb-3">
+            <label class="form-label" for="signupSimpleSignupUsername">نام کاربری</label>
+            <input type="characters" class="form-control form-control-lg text-center" name="username" id="signupSimpleSignupUsername"
+              placeholder="نام کاربری" aria-label="email@site.com" required>
+            <span class="invalid-feedback">لطفا نام کاربری خود را وارد کنید.</span>
+          </div>
           <div class="mb-3">
             <label class="form-label" for="signupSimpleSignupEmail">ایمیل شما</label>
             <input type="email" class="form-control form-control-lg text-center" name="email" id="signupSimpleSignupEmail"
@@ -75,16 +83,54 @@
             <span class="invalid-feedback">لطفاً سیاست حفظ حریم خصوصی ما را بپذیرید.</span>
           </div>
           <!-- End Check -->
-
+          <p id="response-failure-message-p" style="color: red;">
+          </p>
           <div class="d-grid mb-3">
             <button type="submit" class="btn btn-primary btn-lg">ثبت نام</button>
           </div>
 
           <div class="text-center">
-            <p>از قبل حساب کاربری دارید؟<a class="link" href="./page-login-simple.html">از اینجا وارد شوید</a></p>
+            <p>از قبل حساب کاربری دارید؟<a class="link" href="http://127.0.0.1:8000/account/login-view/">از اینجا وارد شوید</a></p>
           </div>
         </form>
         <!-- End Form -->
       </div>
     </div>
+    <script>
+            function getQueryParam(name) {
+              const params = new URLSearchParams(window.location.search);
+              return params.get(name);
+            }
+            document.getElementById("sign-up-form").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            const token = getQueryParam("token");
+            const formData = {
+                email: document.getElementById("signupSimpleSignupEmail").value,
+                username: document.getElementById("signupSimpleSignupUsername").value,
+                password: document.getElementById("signupSimpleSignupPassword").value,
+                password_confirmation: document.getElementById("signupSimpleSignupConfirmPassword").value,
+                token: token
+            };
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const response = await fetch("http://127.0.0.1:8000/account/signup-api/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken
+                },
+                body: JSON.stringify(formData)
+            });
+            const data = await response.json();
+            console.log(data);
+            if (response.ok){
+                authToken = data.key;
+                localStorage.setItem("authToken", "Token " + authToken);
+                window.location.replace("http://127.0.0.1:8000/")
+            }
+            else {
+                document.getElementById("response-failure-message-p").innerHTML = "ثبت نام ناموفق!";
+            }
+        });
+    </script>
     <!-- End Form -->
+    {% endblock content %}

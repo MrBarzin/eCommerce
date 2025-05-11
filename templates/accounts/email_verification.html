@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <!-- Form -->
+    <div class="container content-space-3 content-space-t-lg-4 content-space-b-lg-3">
+      <div class="flex-grow-1 mx-auto" style="max-width: 28rem;">
+        <!-- Heading -->
+        <div class="text-center mb-5 mb-md-7">
+          <h1 class="h2">فرم ثبت نام</h1>
+          <p>برای ثبت نام کافیست فرم زیر را پر نمایید</p>
+        </div>
+        <!-- End Heading -->
+
+        <!-- Form -->
+        <form id="email-verification-form" class="js-validate needs-validation" novalidate>
+            {% csrf_token %} 
+          <!-- Form -->
+          <div class="mb-3">
+            <label class="form-label" for="signupSimpleSignupEmail">ایمیل شما</label>
+            <input type="email" class="form-control form-control-lg text-center" name="email" id="signupSimpleSignupEmail"
+              placeholder="email@site.com" aria-label="email@site.com" required>
+            <span class="invalid-feedback">لطفا یک آدرس ایمیل معتبر وارد کنید.</span>
+          </div>
+          <!-- End Form -->
+
+          <!-- Check -->
+          <div class="form-check mb-3">
+            <input type="checkbox" class="form-check-input" id="signupHeroFormPrivacyCheck"
+              name="signupFormPrivacyCheck" required>
+            <label class="form-check-label small" for="signupHeroFormPrivacyCheck"><a href="#">سیاست حفظ حریم خصوصی</a> با ارسال این فرم من آن را خوانده و
+              تایید کرده ام </label>
+            <span class="invalid-feedback">لطفاً سیاست حفظ حریم خصوصی ما را بپذیرید.</span>
+          </div>
+          <!-- End Check -->
+
+          <div class="d-grid mb-3">
+            <button id="forced-button" type="submit" class="btn btn-primary btn-lg" disabled>ثبت نام</button>
+          </div>
+          <div id="response-message-div">
+            <p id="response-success-message-p" style="color: green;">
+            </p>
+            <p id="response-failure-message-p" style="color: red;">
+            </p>
+          </div>
+          <div class="text-center">
+            <p>از قبل حساب کاربری دارید؟<a class="link" href="http://127.0.0.1:8000/account/login-view/">از اینجا وارد شوید</a></p>
+          </div>
+        </form>
+        <!-- End Form -->
+      </div>
+    </div>
+    <!-- End Form -->
+
+    <script> 
+        document.getElementById("signupHeroFormPrivacyCheck").addEventListener("click", async function(event) {
+            document.getElementById("forced-button").disabled = !document.getElementById("signupHeroFormPrivacyCheck").checked;
+        })
+        document.getElementById("email-verification-form").addEventListener("submit", async function(event) {
+            console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>calling api")
+            event.preventDefault();
+            const formData = {
+                email: document.getElementById("signupSimpleSignupEmail").value,
+            };
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const response = await fetch("http://127.0.0.1:8000/account/send-email-verification-api/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken
+                },
+                body: JSON.stringify(formData)
+            });
+            const data = await response.json();
+            console.log(data);
+            if (response.ok){
+                document.getElementById("response-success-message-p").innerHTML = "ما کد تایید را به ایمیل شما ارسال کردیم.";
+                document.getElementById("response-failure-message-p").innerHTML = null;
+                document.getElementById("signupSimpleSignupEmail").value = null;
+            }
+            else {
+                document.getElementById("response-success-message-p").innerHTML = null;
+                document.getElementById("response-failure-message-p").innerHTML = data.email;
+            }
+        });
+    </script>
+{% endblock content %}
