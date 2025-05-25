@@ -47,3 +47,35 @@ class AddProductToCartView(drf_generics.GenericAPIView):
         
         return Response({"detail": "Product added successfully."}, status=status.HTTP_200_OK)
         
+        
+        
+class CartDetailView(TemplateView):
+    template_name = "payment/cart_detail.html"
+    
+    def get_context_data(self, **kwargs):
+        return {}
+    
+    
+    
+class DeleteCartItemAPIView(drf_generics.DestroyAPIView):
+    
+    def get_queryset(self):
+        return CartItem.objects.filter(cart__user=self.request.user)
+
+
+
+    
+class UpdateCartItemQuantityAPIView(drf_generics.UpdateAPIView):
+    serializer_class = UpdateCartItemQuantityAPIView
+    
+    def get_queryset(self):
+        return CartItem.objects.filter(cart__user=self.request.user)
+    
+    def patch(self, request, *args, **kwargs):
+        response =  super().patch(request, *args, **kwargs)
+        item: CartItem = self.get_object()
+        print(item.quantity)
+        if item.quantity < 1:
+            item.delete()
+        return response
+    

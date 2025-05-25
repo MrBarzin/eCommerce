@@ -94,9 +94,9 @@
                                 <i class="bi-basket"></i>
                                 <span class="cart-item-count ">3</span>
                             </button> -->
-                            <a href="" class="btn btn-ghost-secondary btn-icon">
+                            <a href="http://127.0.0.1:8000/payment/cart-detail-view/" class="btn btn-ghost-secondary btn-icon">
                                 <i class="bi-basket"></i>
-                                <span class="cart-item-count" id="total-cart-item-count">{{cart.get_total_quantity}}</span>
+                                <span class="cart-item-count" id="total-cart-item-count">{{cart.total_items}}</span>
                             </a>
                             <!-- End Shopping Cart -->
 
@@ -581,14 +581,19 @@
     <script src="{% static 'js/custom.js' %}"></script>
     <!-- JS Cart-->
     <script>
-        function addToCart(product_id) {
-     
-            //console.log(product_id)
+        function addToCart(product_id, page_url) {
+            const authToken = localStorage.getItem("authToken");
+            console.log("-----------------------------------------------------------")
+            console.log(product_id)
             $.ajax({
-                url: "",
+                url: "http://127.0.0.1:8000/payment/add-product-to-cart/",
                 method: 'POST',
+                headers: {
+                    Authorization: authToken
+                },
                 data: {
-                    product_id: product_id,
+                    product: product_id,
+                    quantity: 1,
                     csrfmiddlewaretoken: '{{ csrf_token }}'
         
                 },
@@ -602,7 +607,58 @@
                     // handle the error case
                 }
             });
+            window.location.href = page_url;
         }
+
+        function deleteCartItem(item_id) {
+            const authToken = localStorage.getItem("authToken");
+            $.ajax({
+                url: "http://127.0.0.1:8000/payment/delete-cart-item-api/"+item_id+"/",
+                method: 'DELETE',
+                headers: {
+                    Authorization: authToken
+                },
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+        
+                },
+                success: function (response) {
+                    console.log(response);
+                    // do something with the response data
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log(errorThrown);
+                    // handle the error case
+                }
+            });
+            window.location.href = "http://127.0.0.1:8000/payment/cart-detail-view/"
+        }
+
+        function updateCartItemQuantity(item_id, quantity, page_url) {
+            const authToken = localStorage.getItem("authToken");
+            $.ajax({
+                url: "http://127.0.0.1:8000/payment/update-cart-item-quantity-api/"+item_id+"/",
+                method: 'PATCH',
+                headers: {
+                    Authorization: authToken
+                },
+                data: {
+                    quantity: quantity,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+        
+                },
+                success: function (response) {
+                    console.log(response);
+                    // do something with the response data
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log(errorThrown);
+                    // handle the error case
+                }
+            });
+            window.location.href = page_url
+        }
+
         function addToWishlist(element,product_id) {
      
             //console.log(product_id)

@@ -17,11 +17,15 @@ class Cart(models.Model):
 
     @property
     def total_items(self):
-        return self.items.count()
+        items = self.cart_items.values_list("quantity", flat=True)
+        print(items)
+        if not items:
+            return 0
+        return sum(items)
 
     @property
     def total_price(self):
-        return sum(item.total_price for item in self.items.all())
+        return sum(item.total_price for item in self.cart_items.all())
 
 
 class CartItem(models.Model):

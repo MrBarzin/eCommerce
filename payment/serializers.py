@@ -32,3 +32,9 @@ class AddProductToCartSerializer(serializers.Serializer):
         if data < 1:
             serializers.ValidationError("Quantity must be positive.")
         return data
+
+
+class UpdateCartItemQuantityAPIView(serializers.ModelSerializer):
+    class Meta:
+        model = CartItem
+        fields = ("quantity",)

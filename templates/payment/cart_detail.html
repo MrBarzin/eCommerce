@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %} سبد خرید {% endblock title %}
+
+{% block content %}
+<!-- Cart -->
+<div class="container content-space-2 content-space-lg-3">
+    <!-- Heading -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <h1 class="h2">سبد خرید شما</h1>
+        </div>
+    </div>
+    <!-- End Heading -->
+
+    {% if cart.total_items > 0 %}
+    <div class="row">
+        <!-- Items List -->
+        <div class="col-lg-8 mb-7 mb-lg-0">
+            <!-- Cart Items -->
+            <div class="border rounded-3">
+                {% for item in cart.cart_items.all %}
+                <!-- Item -->
+                <div class="border-bottom p-4">
+                    <div class="row">
+                        <!-- Image -->
+                        <div class="col-3 col-md-2">
+                            <img class="img-fluid rounded-3" src="{{ item.product.image.url }}" alt="{{ item.product.title }}">
+                        </div>
+
+                        <!-- Details -->
+                        <div class="col-9 col-md-10">
+                            <div class="row">
+                                <div class="col-md-6 mb-3 mb-md-0">
+                                    <h3 class="h5">{{ item.product.title }}</h3>
+                                    <p class="text-muted mb-0">قیمت واحد: {{ item.product.price|floatformat:"0" }} تومان</p>
+                                </div>
+
+                                <!-- Quantity -->
+                                <div class="col-md-3 mb-3 mb-md-0">
+                                        {% csrf_token %}
+                                    <input type="hidden" name="product_id" value="{{ item.product.id }}">
+                                    <div class="input-group input-group-sm">
+                                        <button type="button" class="btn btn-outline-secondary js-minus" onclick="updateCartItemQuantity('{{item.id}}', {{item.quantity}}-1, window.location.href)">−</button>
+                                        <input id="quantity_input" type="number" name="quantity" class="form-control text-center" 
+                                                value="{{ item.quantity }}" min="1" max="10">
+                                        <button type="button" class="btn btn-outline-secondary js-plus" onclick="updateCartItemQuantity('{{item.id}}', {{item.quantity}}+1, window.location.href)">+</button>
+                                    </div>
+                                    <button type="submit" class="btn btn-link btn-sm mt-1" onclick="updateCartItemQuantity('{{item.id}}', document.getElementById('quantity_input').value, window.location.href)">بروزرسانی</button>
+                                </div>
+
+                                <!-- Price -->
+                                <div class="col-md-3 text-end">
+                                    <span class="d-block h5 mb-1">{{ item.total_price|floatformat:"0" }} تومان</span>
+                                    <button type="submit" class="btn btn-sm btn-soft-danger" onclick="deleteCartItem('{{item.id}}')">
+                                        <i class="bi-trash"></i> حذف
+                                    </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- End Item -->
+                {% endfor %}
+            </div>
+            <!-- End Cart Items -->
+        </div>
+
+        <!-- Summary -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">خلاصه سفارش</h4>
+
+                    <!-- Prices -->
+                    <dl class="row mb-4">
+                        <dt class="col-6">جمع کل:</dt>
+                        <dd class="col-6 text-end">{{ cart.total_price|floatformat:"0" }} تومان</dd>
+
+                        <dt class="col-6">هزینه ارسال:</dt>
+                        <dd class="col-6 text-end">رایگان</dd>
+                    </dl>
+
+                    <hr class="my-4">
+
+                    <!-- Total -->
+                    <dl class="row mb-4">
+                        <dt class="col-6 fw-bold">مبلغ قابل پرداخت:</dt>
+                        <dd class="col-6 text-end fw-bold">{{ cart.total_price|floatformat:"0" }} تومان</dd>
+                    </dl>
+
+                    <!-- Button -->
+                    <a href="" class="btn btn-primary btn-lg w-100">
+                        ادامه جهت تسویه حساب
+                        <i class="bi-arrow-left ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <!-- Empty Cart -->
+    <div class="text-center py-9">
+        <div class="mb-5">
+            <img class="img-fluid" src="{% static 'svg/illustrations/oc-cart.svg' %}" alt="Empty Cart" style="max-width: 20rem;">
+        </div>
+        <h3 class="mb-3">سبد خرید شما خالی است</h3>
+        <a class="btn btn-primary" href="{% url 'product:product-grid' %}">
+            <i class="bi-arrow-right ms-2"></i>
+            مشاهده محصولات
+        </a>
+    </div>
+    <!-- End Empty Cart -->
+    {% endif %}
+</div>
+<!-- End Cart -->
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+    // Quantity controls
+    document.querySelectorAll('.js-minus').forEach(button => {
+        button.addEventListener('click', () => {
+            const input = button.parentNode.querySelector('input');
+            if (input.value > 1) input.value--;
+        });
+    });
+
+    document.querySelectorAll('.js-plus').forEach(button => {
+        button.addEventListener('click', () => {
+            const input = button.parentNode.querySelector('input');
+            input.value++;
+        });
+    });
+</script>
+{% endblock extra_js %}
