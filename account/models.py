@@ -22,3 +22,9 @@ class EmailVerification(models.Model):
         return timezone.now() > self.created_at + timedelta(minutes=5)
     
     
+class UserAddress(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    country = models.CharField(max_length=256)
+    state = models.CharField(max_length=256)
+    city = models.CharField(max_length=256)
+    address = models.CharField(max_length=256)

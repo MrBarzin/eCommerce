@@ -4,6 +4,10 @@ from django.views.generic import (
 )
 from .models import ProductModel, ProductStatusType, ProductCategoryModel, WishlistProductModel
 from django.core.exceptions import FieldError
+from rest_framework import generics as drf_generics
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import *
 # Create your views here.
 
 
@@ -45,3 +49,9 @@ class ShopProductDetailView(DetailView):
         status=ProductStatusType.publish.value)
 
    
+class GetProductListAPIView(drf_generics.ListAPIView):
+    serializer_class = ProductListSerializer
+    queryset = ProductModel.objects.all()
+
+
+        
