@@ -92,10 +92,24 @@
                     </dl>
 
                     <!-- Button -->
-                    <a href="" class="btn btn-primary btn-lg w-100">
+                    <textarea 
+                        id="shipping_address" 
+                        class="form-control text-center" 
+                        placeholder="Enter your address" 
+                        rows="4" 
+                        cols="50"
+                        oninput="toggleButtonState()"
+                    ></textarea>
+
+                    <button 
+                        id="create_order_button" 
+                        class="btn btn-primary btn-lg w-100" 
+                        onclick="createOrder(document.getElementById('shipping_address').value, window.location.href)" 
+                        disabled
+                    >
                         ادامه جهت تسویه حساب
                         <i class="bi-arrow-left ms-2"></i>
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
@@ -134,5 +148,11 @@
             input.value++;
         });
     });
+    
+    function toggleButtonState() {
+        const textarea = document.getElementById('shipping_address');
+        const button = document.getElementById('create_order_button');
+        button.disabled = textarea.value.trim() === '';
+    }
 </script>
 {% endblock extra_js %}

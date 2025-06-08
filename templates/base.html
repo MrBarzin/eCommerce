@@ -32,97 +32,96 @@
 
 <body>
     <!-- ========== HEADER ========== -->
-    <header id="header" class="navbar navbar-expand-lg navbar-end navbar-absolute-top navbar-light navbar-show-hide"
-        data-hs-header-options='{
-        "fixMoment": 500,
-        "fixEffect": "slide"
-      }'>
-        <div class="container">
-            <nav class="js-mega-menu navbar-nav-wrap">
-                <!-- Default Logo -->
-                <a class="navbar-brand" href="{% url 'website:index' %}" aria-label="Front">
-                    <img class="navbar-brand-logo" src="{% static 'svg/logos/logo.svg' %}" alt="Logo">
-                </a>
-                <!-- End Default Logo -->
+    <!-- ========== HEADER ========== -->
+<header id="header" class="navbar navbar-expand-lg navbar-end navbar-absolute-top navbar-light navbar-show-hide"
+    data-hs-header-options='{
+    "fixMoment": 500,
+    "fixEffect": "slide"
+  }'>
+    <div class="container">
+        <nav class="js-mega-menu navbar-nav-wrap">
+            <!-- Default Logo -->
+            <a class="navbar-brand" href="{% url 'website:index' %}" aria-label="Front">
+                <img class="navbar-brand-logo" src="{% static 'svg/logos/logo.svg' %}" alt="Logo">
+            </a>
+            <!-- End Default Logo -->
 
-                <!-- Toggler -->
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false"
-                    aria-label="Toggle navigation">
-                    <span class="navbar-toggler-default">
-                        <i class="bi-list"></i>
-                    </span>
-                    <span class="navbar-toggler-toggled">
-                        <i class="bi-x"></i>
-                    </span>
-                </button>
-                <!-- End Toggler -->
+            <!-- Toggler -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-default">
+                    <i class="bi-list"></i>
+                </span>
+                <span class="navbar-toggler-toggled">
+                    <i class="bi-x"></i>
+                </span>
+            </button>
+            <!-- End Toggler -->
 
-                <!-- Collapse -->
-                <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                    <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'website:index' %}">صفحه اصلی</a>
-                        </li>
+            <!-- Collapse -->
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'website:index' %}">صفحه اصلی</a>
+                    </li>
 
+                    <li class="nav-item">
+                        <a class="nav-link " href="{% url 'product:product-grid' %}">لیست محصولات</a>
+                    </li>
+                    
+                    <!-- New Orders Link -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'payment:orders-list' %}">سفارشات من</a>
+                    </li>
+                    <!-- End New Orders Link -->
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'website:about' %}">درباره ما</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'website:contact' %}">ارتباط با ما</a>
+                    </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link " href="{% url 'product:product-grid' %}">لیست محصولات</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'website:about' %}">درباره ما</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'website:contact' %}">ارتباط با ما</a>
-                        </li>
+                    <li class="nav-item">
+                        <!-- Search -->
+                        <button class="btn btn-ghost-secondary btn-icon" type="button" data-bs-toggle="offcanvas"
+                            data-bs-target="#offcanvasNavbarSearch" aria-controls="offcanvasNavbarSearch">
+                            <i class="bi-search"></i>
+                        </button>
+                        <!-- End Search -->
 
+                        <!-- Shopping Cart -->
+                        <a href="{% url 'payment:cart-detail-view' %}" class="btn btn-ghost-secondary btn-icon">
+                            <i class="bi-basket"></i>
+                            <span class="cart-item-count" id="total-cart-item-count">{{cart.total_items}}</span>
+                        </a>
+                        <!-- End Shopping Cart -->
 
+                        <button id="profile-button" class="btn btn-ghost-secondary btn-icon" id="dropdownMenuLink"
+                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="avatar avatar-sm avatar-circle">
+                                <img id="user_profile_picture" class="avatar-img" 
+                                    alt="Image Description">
+                            </span>
+                        </button>
 
-                        <li class="nav-item">
-                            <!-- Search -->
-                            <button class="btn btn-ghost-secondary btn-icon" type="button" data-bs-toggle="offcanvas"
-                                data-bs-target="#offcanvasNavbarSearch" aria-controls="offcanvasNavbarSearch">
-                                <i class="bi-search"></i>
-                            </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                            {% comment %} <a class="dropdown-item" href="{% url 'account:profile-view' %}">پروفایل</a> {% endcomment %}
+                            <!-- Added Orders Link to dropdown -->
+                            <a class="dropdown-item" href="{% url 'payment:orders-list' %}">سفارشات من</a>
+                            <a id="logout-button" class="dropdown-item" href="#">خروج</a>
+                        </div>
 
-                            <!-- End Search -->
-
-                            <!-- Shopping Cart -->
-                            <!-- <button type="button" class="btn btn-ghost-secondary btn-icon" type="button"
-                                data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbarShoppingCart"
-                                aria-controls="offcanvasNavbarShoppingCart">
-                                <i class="bi-basket"></i>
-                                <span class="cart-item-count ">3</span>
-                            </button> -->
-                            <a href="http://127.0.0.1:8000/payment/cart-detail-view/" class="btn btn-ghost-secondary btn-icon">
-                                <i class="bi-basket"></i>
-                                <span class="cart-item-count" id="total-cart-item-count">{{cart.total_items}}</span>
-                            </a>
-                            <!-- End Shopping Cart -->
-
-                            <button id="profile-button" class="btn btn-ghost-secondary btn-icon" id="dropdownMenuLink"
-                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="avatar avatar-sm avatar-circle">
-                                    <img id="user_profile_picture" class="avatar-img" 
-                                        alt="Image Description">
-                                </span>
-                            </button>
-
-                            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                                <a class="dropdown-item" href="http://127.0.0.1:8000/account/profile-view/">پروفایل</a>
-                                <a id="logout-button" class="dropdown-item" href="#">خروج</a>
-                            </div>
-
-                            <a id="authenticate-button" class="btn btn-primary btn-transition" href="http://127.0.0.1:8000/account/login-view/">ورود</a>
-                        </li>
-                    </ul>
-                </div>
-                <!-- End Collapse -->
-            </nav>
-        </div>
-    </header>
-
-    <!-- ========== END HEADER ========== -->
+                        <a id="authenticate-button" class="btn btn-primary btn-transition" href="{% url 'account:login-view' %}">ورود</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- End Collapse -->
+        </nav>
+    </div>
+</header>
+<!-- ========== END HEADER ========== -->
 
     <!-- ========== MAIN CONTENT ========== -->
     <main id="content" role="main">{% block content %}{% endblock content %}</main>
@@ -658,7 +657,30 @@
             });
             window.location.href = page_url
         }
+        function createOrder(shipping_address, page_url) {
+            const authToken = localStorage.getItem("authToken");
+            $.ajax({
+                url: "http://127.0.0.1:8000/payment/create-order-api/",
+                method: 'POST',
+                headers: {
+                    Authorization: authToken
+                },
+                data: {
+                    shipping_address: shipping_address,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
 
+                },
+                success: function (response) {
+                    console.log(response);
+                    // do something with the response data
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log(errorThrown);
+                    // handle the error case
+                }
+            });
+            window.location.href = page_url
+        }
         function addToWishlist(element,product_id) {
      
             //console.log(product_id)

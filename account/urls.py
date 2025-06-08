@@ -1,7 +1,7 @@
 from django.urls import path
 from account.views import *
 
-
+app_name = "account"
 urlpatterns = [
     path("send-email-verification-api/", SendEmailVerificationAPIView.as_view(), name="send-email-verification"),
     path("register-view/", RegistrationView.as_view(), name="register-view"),

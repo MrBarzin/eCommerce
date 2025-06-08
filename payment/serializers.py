@@ -34,7 +34,27 @@ class AddProductToCartSerializer(serializers.Serializer):
         return data
 
 
-class UpdateCartItemQuantityAPIView(serializers.ModelSerializer):
+class UpdateCartItemQuantitySerializer(serializers.ModelSerializer):
     class Meta:
         model = CartItem
         fields = ("quantity",)
+        
+        
+class CreateOrderSerializer(serializers.Serializer):
+    shipping_address = serializers.CharField()
+    
+    
+class OrderItemDetailSerializer(serializers.ModelSerializer):
+    product = ProductSerializer()
+
+    class Meta:
+        model = OrderItem 
+        fields = ("product", "quantity", "price")
+        
+
+class OrderDetailSerializer(serializers.ModelSerializer):
+    items = OrderItemDetailSerializer(many=True)
+    
+    class Meta:
+        model = Order
+        fields = ("status", "total_amount", "shipping_address", "items")

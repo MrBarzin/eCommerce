@@ -66,7 +66,7 @@ class DeleteCartItemAPIView(drf_generics.DestroyAPIView):
 
     
 class UpdateCartItemQuantityAPIView(drf_generics.UpdateAPIView):
-    serializer_class = UpdateCartItemQuantityAPIView
+    serializer_class = UpdateCartItemQuantitySerializer
     
     def get_queryset(self):
         return CartItem.objects.filter(cart__user=self.request.user)
@@ -79,3 +79,41 @@ class UpdateCartItemQuantityAPIView(drf_generics.UpdateAPIView):
             item.delete()
         return response
     
+
+class CreateOrderAPIView(drf_generics.GenericAPIView):
+    permission_classes = [drf_perms.IsAuthenticated]
+    serializer_class = CreateOrderSerializer
+
+    def post(self, *args, **kwargs):
+        cart, created = Cart.objects.get_or_create(user=self.request.user)
+        if not cart.cart_items.exists():
+            return Response(data={"error": "There is any item in the user cart."}, status=400)
+        
+        serializer = self.get_serializer(data=self.request.data)
+        serializer.is_valid(raise_exception=True)
+
+        shipping_address = serializer.validated_data.get("shipping_address")
+
+        order = Order.objects.create(
+            user=self.request.user,
+            total_amount = cart.total_price,
+            shipping_address =shipping_address
+        )
+        
+        for cart_item in cart.cart_items.all():            
+            OrderItem.objects.create(
+                order = order,
+                product = cart_item.product,
+                quantity = cart_item.quantity,
+                price = cart_item.total_price,
+            )
+            cart_item.delete()
+        serializer = OrderDetailSerializer(instance=order)   
+        return Response(data=serializer.data, status=201)
+    
+    
+class OrdersListView(TemplateView):
+    template_name = "payment/orders_list.html"
+    
+    def get_context_data(self, **kwargs):
+        return {"orders": Order.objects.filter(user=self.request.user)}

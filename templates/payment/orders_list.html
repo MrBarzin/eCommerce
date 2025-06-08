@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+{% load static humanize %}
+
+{% block title %}لیست سفارشات{% endblock title %}
+
+{% block content %}
+<!-- ========== MAIN CONTENT ========== -->
+<main id="content" role="main">
+    <!-- Breadcrumb -->
+    <div class="container content-space-1 content-space-b-lg-3">
+        <div class="w-lg-75 mx-lg-auto">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{% url 'website:index' %}">صفحه اصلی</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">سفارشات من</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <!-- End Breadcrumb -->
+
+    <!-- Orders Table -->
+    <div class="container content-space-b-2 content-space-b-lg-3">
+        <div class="w-lg-75 mx-lg-auto">
+            <div class="card card-lg">
+                <div class="card-header bg-light py-3 px-4">
+                    <h4 class="card-title mb-0">لیست سفارشات</h4>
+                </div>
+
+                <div class="card-body p-0">
+                    {% if orders %}
+                    <!-- Table -->
+                    <div class="table-responsive">
+                        <table class="table table-lg table-nowrap table-align-middle">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>شماره سفارش</th>
+                                    <th>تاریخ</th>
+                                    <th>مبلغ کل</th>
+                                    <th>وضعیت پرداخت</th>
+                                    <th>وضعیت سفارش</th>
+                                    <th>جزئیات</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for order in orders %}
+                                <tr>
+                                    <td>
+                                        <span class="h5">#{{ order.id }}</span>
+                                    </td>
+                                    <td>
+                                        {{ order.created_at|date:"Y/m/d" }}
+                                    </td>
+                                    <td>
+                                        <span class="h5">{{ order.total_amount|intcomma }} تومان</span>
+                                    </td>
+                                    <td>
+                                        {% if order.payment_status %}
+                                        <span class="badge bg-soft-success text-success">
+                                            <i class="bi-check-circle me-1"></i> پرداخت شده
+                                        </span>
+                                        {% else %}
+                                        <span class="badge bg-soft-warning text-warning">
+                                            <i class="bi-clock-history me-1"></i> در انتظار پرداخت
+                                        </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if order.status == 'delivered' %}
+                                        <span class="badge bg-soft-success text-success">
+                                            <i class="bi-check-circle me-1"></i> تحویل شده
+                                        </span>
+                                        {% elif order.status == 'shipped' %}
+                                        <span class="badge bg-soft-info text-info">
+                                            <i class="bi-truck me-1"></i> ارسال شده
+                                        </span>
+                                        {% elif order.status == 'processing' %}
+                                        <span class="badge bg-soft-primary text-primary">
+                                            <i class="bi-gear me-1"></i> در حال پردازش
+                                        </span>
+                                        {% elif order.status == 'cancelled' %}
+                                        <span class="badge bg-soft-danger text-danger">
+                                            <i class="bi-x-circle me-1"></i> لغو شده
+                                        </span>
+                                        {% elif order.status == 'pending' %}
+                                        <span class="badge bg-soft-warning text-warning">
+                                            <i class="bi-clock-history me-1"></i> در انتظار بررسی
+                                        </span>
+                                        {% else %}
+                                        <span class="badge bg-soft-secondary text-secondary">
+                                            {{ order.get_status_display }}
+                                        </span>
+                                        {% endif %}
+                                    </td>
+                                    {% comment %} <td>
+                                        <a class="btn btn-sm btn-outline-primary" 
+                                           href="{% url 'payment:order-detail' order.id %}">
+                                            مشاهده جزئیات
+                                            <i class="bi-chevron-left me-1"></i>
+                                        </a>
+                                    </td> {% endcomment %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- End Table -->
+                    {% else %}
+                    <!-- Empty State -->
+                    <div class="text-center py-10">
+                        <img class="img-fluid mb-3" src="{% static 'svg/illustrations/oc-no-order.svg' %}" alt="No orders" style="max-width: 15rem;">
+                        <h4 class="mb-3">هنوز سفارشی ثبت نکرده‌اید!</h4>
+                        <p class="mb-0">می‌توانید از فروشگاه ما دیدن کنید و اولین خرید خود را انجام دهید</p>
+                        <a class="btn btn-primary mt-3" href="{% url 'product:product-grid' %}">
+                            مشاهده محصولات
+                            <i class="bi-chevron-left me-1"></i>
+                        </a>
+                    </div>
+                    <!-- End Empty State -->
+                    {% endif %}
+                </div>
+
+                {% if orders.has_other_pages %}
+                <div class="card-footer py-3 px-4">
+                    <!-- Pagination -->
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center mb-0">
+                            {% if orders.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ orders.previous_page_number }}" aria-label="Previous">
+                                    <span aria-hidden="true"><i class="bi-chevron-right"></i></span>
+                                </a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                    <span aria-hidden="true"><i class="bi-chevron-right"></i></span>
+                                </a>
+                            </li>
+                            {% endif %}
+
+                            {% for i in orders.paginator.page_range %}
+                                {% if orders.number == i %}
+                                <li class="page-item active" aria-current="page">
+                                    <span class="page-link">{{ i }}</span>
+                                </li>
+                                {% else %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if orders.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ orders.next_page_number }}" aria-label="Next">
+                                    <span aria-hidden="true"><i class="bi-chevron-left"></i></span>
+                                </a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                    <span aria-hidden="true"><i class="bi-chevron-left"></i></span>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    <!-- End Pagination -->
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <!-- End Orders Table -->
+</main>
+<!-- ========== END MAIN CONTENT ========== -->
+{% endblock content %}
+
+{% block extra_css %}
+<style>
+    .table-lg td, .table-lg th {
+        padding: 1rem 1.25rem;
+    }
+    .badge {
+        padding: 0.5em 0.75em;
+        font-size: 0.875em;
+    }
+    .badge-icon {
+        display: inline-flex;
+        align-items: center;
+    }
+</style>
+{% endblock extra_css %}
